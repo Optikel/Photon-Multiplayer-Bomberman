@@ -8578,9 +8578,9 @@ MonoBehaviour:
   targetAngle: 0
   moveSpeed: 10
   rayLength: 1.4
-  rayOffsetX: 0.4
-  rayOffsetY: -0.4
-  rayOffsetZ: 0.4
+  rayOffsetX: 0.2
+  rayOffsetY: -0.2
+  rayOffsetZ: 0.2
   targetPosition: {x: 0, y: 0, z: 0}
 --- !u!54 &963892478
 Rigidbody:
