@@ -46,9 +46,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BombMesh: {fileID: 6735476979671362931}
   Explosion: {fileID: 7566469314183788761, guid: 522da013f5545144fbb0746d87eaf2d6, type: 3}
-  Indestructables:
-  - {fileID: 4581335673864181873, guid: 6c939d5533d1d684ca6ca6a4818864c7, type: 3}
   Power: 3
+  Penetrative: 0
   Timer: 3
   RateOfBlink: 1
 --- !u!1 &6735476979671362931
