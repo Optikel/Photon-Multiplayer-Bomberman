@@ -10,8 +10,15 @@ public class RoomListingMenu : MonoBehaviourPunCallbacks
     private RectTransform _content;
     [SerializeField]
     private RoomListing _roomListing;
+    [SerializeField]
+    private RoomListing ActiveListing = null;
 
     private List<RoomListing> _listings = new List<RoomListing>();
+
+    void Update()
+    {
+        
+    }
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
         Debug.Log("TEST");
