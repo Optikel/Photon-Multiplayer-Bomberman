@@ -10,32 +10,36 @@ public class JoinRoomScript : MonoBehaviourPunCallbacks
     private Button JoinButton;
     [SerializeField]   
     private Button BackButton;
+    [SerializeField]
+    public GameObject Context;
 
-    [SerializeField]
-    private GameObject CurrentScene;
-    [SerializeField]
-    private GameObject LobbyScene;
-    [SerializeField]
-    private GameObject SelectionScene;
     void Start()
     {
-        JoinButton.onClick.AddListener(OnClickJoin);
         BackButton.onClick.AddListener(OnClickBack);
+        JoinButton.onClick.AddListener(OnClickJoin);
     }
 
+    void Update()
+    {
+
+    }
     void OnClickJoin()
     {
-        CurrentScene.SetActive(false);
-        LobbyScene.SetActive(true);
+        if(Context.GetComponentInChildren<RoomListingMenu>().activeListing)
+        {
+            string roomName = Context.GetComponentInChildren<RoomListingMenu>().activeListing.RoomInfo.Name;
+            Debug.Log("Joining Lobby...");
+            PhotonNetwork.JoinRoom(roomName);
+        }
+
     }
+
     void OnClickBack()
     {
         Debug.Log("Leaving Lobby");
 
         if(PhotonNetwork.InLobby)
             PhotonNetwork.LeaveLobby();
-
-        CurrentScene.SetActive(false);
-        SelectionScene.SetActive(true);
     }
+    
 }

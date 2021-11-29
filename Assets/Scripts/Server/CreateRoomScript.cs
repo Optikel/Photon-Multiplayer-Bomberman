@@ -13,20 +13,14 @@ public class CreateRoomScript : MonoBehaviourPunCallbacks
     private GameObject BackButton;
     [SerializeField]
     private GameObject RoomName;
-
     [SerializeField]
-    private GameObject CurrentScene;
-    [SerializeField]
-    private GameObject LobbyScene;
-    [SerializeField]
-    private GameObject SelectionScene;
+    public GameObject Context;
 
     string m_RoomName;
     void Start()
     {
         CreateButton.GetComponent<Button>().onClick.AddListener(OnClickCreate);
-
-        BackButton.GetComponent<Button>().onClick.AddListener(OnClickBack);
+        BackButton.GetComponent<Button>().onClick.AddListener(OnClickLeave);
     }
 
     void Update()
@@ -45,14 +39,12 @@ public class CreateRoomScript : MonoBehaviourPunCallbacks
             options.IsVisible = true;
 
             PhotonNetwork.CreateRoom(m_RoomName, options, TypedLobby.Default);
-            CurrentScene.SetActive(false);
-            LobbyScene.SetActive(true);
         }
     }
-    void OnClickBack()
+
+    void OnClickLeave()
     {
-        CurrentScene.SetActive(false);
-        SelectionScene.SetActive(true);
+        PhotonNetwork.LeaveLobby();
     }
 
     #region PUNCALLBACKS

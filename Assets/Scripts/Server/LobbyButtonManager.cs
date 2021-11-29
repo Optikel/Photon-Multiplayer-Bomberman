@@ -9,30 +9,23 @@ using Photon.Realtime;
 public class LobbyButtonManager : MonoBehaviour
 {
     [SerializeField]
-    private GameObject CreateButton;
+    private Button CreateButton;
     [SerializeField]
-    private GameObject JoinButton;
+    private Button JoinButton;
     [SerializeField]
-    private GameObject NickName;
+    private Text NickName;
+    [SerializeField]
+    public GameObject Context;
 
-    [SerializeField]
-    private GameObject CurrentScene;
-    [SerializeField]
-    private GameObject CreateScene;
-    [SerializeField]
-    private GameObject JoinScene;
-
-
+    [HideInInspector]
+    public bool ToCreate = false;
 
     string m_NickName;
     // Start is called before the first frame update
     void Start()
     {
         CreateButton.GetComponent<Button>().onClick.AddListener(OnClickCreate);
-        CreateButton.GetComponent<Button>().onClick.AddListener(JoinLobby);
-
         JoinButton.GetComponent<Button>().onClick.AddListener(OnClickJoin);
-        JoinButton.GetComponent<Button>().onClick.AddListener(JoinLobby);
     }
 
     void JoinLobby()
@@ -44,13 +37,12 @@ public class LobbyButtonManager : MonoBehaviour
 
             if (!PhotonNetwork.InLobby)
                 PhotonNetwork.JoinLobby();
-
-            //Debug.Log("Joined Lobby - " + PhotonNetwork.CurrentLobby);
         }
     }
 
-    void OnClickCreate()
+    public void OnClickCreate()
     {
+        ToCreate = true;
         if (NickName.GetComponent<Text>().text.Length == 0)
         {
             m_NickName = "Player" + Random.Range(0, 10000);
@@ -60,12 +52,12 @@ public class LobbyButtonManager : MonoBehaviour
             m_NickName = NickName.GetComponent<Text>().text;
         }
 
-        CurrentScene.SetActive(false);
-        CreateScene.SetActive(true);
+        JoinLobby();
     }
 
-    void OnClickJoin()
+    public void OnClickJoin()
     {
+        ToCreate = false;
         if (NickName.GetComponent<Text>().text.Length == 0)
         {
             m_NickName = "Player" + Random.Range(0, 10000);
@@ -75,7 +67,6 @@ public class LobbyButtonManager : MonoBehaviour
             m_NickName = NickName.GetComponent<Text>().text;
         }
 
-        CurrentScene.SetActive(false);
-        JoinScene.SetActive(true);
+        JoinLobby();
     }
 }

@@ -10,18 +10,14 @@ public class RoomListingMenu : MonoBehaviourPunCallbacks
     private RectTransform _content;
     [SerializeField]
     private RoomListing _roomListing;
+
     [SerializeField]
-    private RoomListing ActiveListing = null;
+    public RoomListing activeListing = null;
 
-    private List<RoomListing> _listings = new List<RoomListing>();
-
-    void Update()
-    {
-        
-    }
+    public List<RoomListing> _listings = new List<RoomListing>();
+    #region PUNCALLBACK
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
-        Debug.Log("TEST");
         foreach (RoomInfo info in roomList)
         {
             if (info.RemovedFromList)
@@ -42,7 +38,7 @@ public class RoomListingMenu : MonoBehaviourPunCallbacks
             }
         }
     }
-
+    #endregion
     public void DeleteRoomList()
     {
         for(int index = 0; index < _content.childCount; index++)
@@ -50,4 +46,5 @@ public class RoomListingMenu : MonoBehaviourPunCallbacks
             Object.Destroy(_content.GetChild(index).gameObject);
         }
     }
+
 }

@@ -11,23 +11,34 @@ public class NetworkController : MonoBehaviourPunCallbacks
     [SerializeField]
     private Text ServerStatus;
 
+    [SerializeField]
+    private GameObject ActiveContext;
+    [SerializeField]
+    private LobbyButtonManager LobbyContext;
+    [SerializeField]
+    private CreateRoomScript LobbyCreateContext;
+    [SerializeField]
+    private JoinRoomScript LobbyJoinContext;
+    [SerializeField]
+    private RoomButtonManager RoomContext;
+    
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("Connecting to server...");
         PhotonNetwork.GameVersion = "0.0.1";
         PhotonNetwork.ConnectUsingSettings(); //Connects to Photon master servers
-        Debug.Log("Connecting to server");
-
-
-        ServerStatus.text = PhotonNetwork.Server.ToString();
+        ServerStatus.text = "Connecting...";
     }
-    private void Update()
-    {
-    }
-    #region PUN CallBacks   
+
+    #region PUN CallBacks
     public override void OnConnectedToMaster()
     {
+        ServerStatus.text = PhotonNetwork.ServerAddress;
         Debug.Log("Connected to the" + PhotonNetwork.CloudRegion + " server!");
+
+        ActiveContext = LobbyContext.Context;
+        ActiveContext.SetActive(true);
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -37,7 +48,34 @@ public class NetworkController : MonoBehaviourPunCallbacks
 
     public override void OnJoinedLobby()
     {
-        Debug.Log("Joined Lobby");
+        Debug.Log("Joined Lobby - " + PhotonNetwork.CurrentLobby);
+        ActiveContext.SetActive(false);
+        ActiveContext = LobbyContext.ToCreate ? LobbyCreateContext.Context: LobbyJoinContext.Context;
+        ActiveContext.SetActive(true);
+    }
+
+    public override void OnLeftLobby()
+    {
+        Debug.Log("Leaving Lobby");
+        ActiveContext.SetActive(false);
+        ActiveContext = LobbyContext.Context;
+        ActiveContext.SetActive(true);
+    }
+
+    public override void OnJoinedRoom()
+    {
+        Debug.Log("Joined Room - " + PhotonNetwork.CurrentRoom.Name);
+        ActiveContext.SetActive(false);
+        ActiveContext = RoomContext.Context;
+        ActiveContext.SetActive(true);
+    }
+
+    public override void OnLeftRoom()
+    {
+        Debug.Log("Leave Room");
+        ActiveContext.SetActive(false);
+        ActiveContext = LobbyContext.Context;
+        ActiveContext.SetActive(true);
     }
     #endregion
 }

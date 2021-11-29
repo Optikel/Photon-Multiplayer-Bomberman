@@ -190,6 +190,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _roomName: {fileID: 6481176700887572839}
   _roomSize: {fileID: 2263020085918356436}
+  normalColor: {r: 1, g: 1, b: 1, a: 0}
+  selectedColor: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 0}
+  menu: {fileID: 0}
+  isSelected: 0
 --- !u!114 &4326553072896368405
 MonoBehaviour:
   m_ObjectHideFlags: 0

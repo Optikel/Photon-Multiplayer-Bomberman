@@ -7,14 +7,11 @@ using Photon.Pun;
 public class RoomButtonManager : MonoBehaviour
 {
     [SerializeField]
-    private Button BackButton;
-    [SerializeField]
     private Button StartButton;
     [SerializeField]
-    private GameObject CurrentScene;
+    private Button BackButton;
     [SerializeField]
-    private GameObject JoinScene;
-
+    public GameObject Context;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,12 +21,11 @@ public class RoomButtonManager : MonoBehaviour
 
     void OnClickStart()
     {
-
     }
+
     void OnClickBack()
     {
+        Debug.Log("Leaving Room");
         PhotonNetwork.LeaveRoom();
-        CurrentScene.SetActive(false);
-        JoinScene.SetActive(true);
     }
 }
