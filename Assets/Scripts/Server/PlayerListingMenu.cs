@@ -12,14 +12,40 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
     private PlayerListing _playerListing;
 
     private List<PlayerListing> _listings = new List<PlayerListing>();
+
+    public override void OnJoinedRoom()
+    {
+        int index = 1;
+        foreach(Player player in PhotonNetwork.CurrentRoom.Players.Values)
+        {
+            PlayerListing listing = Instantiate(_playerListing, _list);
+            if (listing != null)
+            {
+                listing.SetPlayerInfo(player, index);
+                _listings.Add(listing);
+                index++;
+            }
+        }
+    }
+
+    public override void OnLeftRoom()
+    {
+        foreach(PlayerListing listing in _listings)
+        {
+            Destroy(listing.gameObject);
+        }
+    }
+
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        PlayerListing listing = Instantiate(_playerListing, _list);
-        if(listing != null)
+        Debug.Log("Player " + newPlayer.NickName + " joined " + PhotonNetwork.CurrentLobby.Name);
+        PlayerListing newlisting = Instantiate(_playerListing, _list);
+        if (newlisting != null)
         {
-            listing.SetPlayerInfo(newPlayer);
-            _listings.Add(listing);
+            newlisting.SetPlayerInfo(newPlayer, PhotonNetwork.CurrentRoom.PlayerCount);
+            _listings.Add(newlisting);
         }
+        UpdateIndex();
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
@@ -29,6 +55,17 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
         {
             Destroy(_listings[index].gameObject);
             _listings.RemoveAt(index);
+        }
+        UpdateIndex();
+    }
+
+
+    void UpdateIndex()
+    {
+        int index = 1;
+        foreach (PlayerListing listing in _listings)
+        {
+            listing.SetIndex(index++);
         }
     }
 }

@@ -46,22 +46,4 @@ public class CreateRoomScript : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.LeaveLobby();
     }
-
-    #region PUNCALLBACKS
-
-    public override void OnCreatedRoom()
-    {
-        Debug.Log("Created Room(" + m_RoomName + ") Successfully!");
-    }
-
-    public override void OnJoinedRoom()
-    {
-        Debug.Log("Joined Room - " + PhotonNetwork.CurrentRoom);
-    }
-
-    public override void OnJoinRoomFailed(short returnCode, string message)
-    {
-        Debug.Log("Room Created Failed - " + message);
-    }
-    #endregion
 }

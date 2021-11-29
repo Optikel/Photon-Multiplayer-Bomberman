@@ -25,7 +25,7 @@ public class RoomButtonManager : MonoBehaviour
 
     void OnClickBack()
     {
-        Debug.Log("Leaving Room");
+        Debug.Log("Leaving Room...");
         PhotonNetwork.LeaveRoom();
     }
 }

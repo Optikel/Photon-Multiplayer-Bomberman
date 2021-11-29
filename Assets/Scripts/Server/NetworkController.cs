@@ -48,8 +48,9 @@ public class NetworkController : MonoBehaviourPunCallbacks
 
     public override void OnJoinedLobby()
     {
-        Debug.Log("Joined Lobby - " + PhotonNetwork.CurrentLobby);
+        Debug.Log("Joined Lobby - " + PhotonNetwork.CurrentLobby.Name);
         ActiveContext.SetActive(false);
+
         ActiveContext = LobbyContext.ToCreate ? LobbyCreateContext.Context: LobbyJoinContext.Context;
         ActiveContext.SetActive(true);
     }
@@ -58,24 +59,40 @@ public class NetworkController : MonoBehaviourPunCallbacks
     {
         Debug.Log("Leaving Lobby");
         ActiveContext.SetActive(false);
+
         ActiveContext = LobbyContext.Context;
         ActiveContext.SetActive(true);
+    }
+
+    public override void OnCreatedRoom()
+    {
+        Debug.Log("Created Room(" + PhotonNetwork.CurrentRoom.Name + ") Successfully!");
     }
 
     public override void OnJoinedRoom()
     {
         Debug.Log("Joined Room - " + PhotonNetwork.CurrentRoom.Name);
         ActiveContext.SetActive(false);
+
         ActiveContext = RoomContext.Context;
         ActiveContext.SetActive(true);
+        ActiveContext.GetComponentInChildren<PlayerListingMenu>().OnJoinedRoom();
     }
 
     public override void OnLeftRoom()
     {
-        Debug.Log("Leave Room");
+        Debug.Log("Left Room");
         ActiveContext.SetActive(false);
+
         ActiveContext = LobbyContext.Context;
         ActiveContext.SetActive(true);
     }
+
+
+    public override void OnJoinRoomFailed(short returnCode, string message)
+    {
+        Debug.Log("Room Created Failed - " + message);
+    }
+
     #endregion
 }
