@@ -1320,7 +1320,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   JoinButton: {fileID: 1632389251}
   BackButton: {fileID: 2027412306}
-  Context: {fileID: 0}
+  Context: {fileID: 998964240}
 --- !u!1 &557481643
 GameObject:
   m_ObjectHideFlags: 0
@@ -2284,7 +2284,7 @@ GameObject:
   - component: {fileID: 998964241}
   - component: {fileID: 998964242}
   m_Layer: 5
-  m_Name: LobbyJoin
+  m_Name: RoomJoin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2669,7 +2669,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 95142157}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 502975335}
+        m_TargetAssemblyTypeName: RoomListingMenu, Assembly-CSharp
+        m_MethodName: DeleteRoomList
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!212 &1280305465
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -4369,7 +4381,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2076699787
 Transform:
   m_ObjectHideFlags: 0
@@ -4391,13 +4403,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2076699786}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a53854f485964da41a58e2c34bfa6604, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BackButton: {fileID: 0}
-  StartButton: {fileID: 0}
+  StartButton: {fileID: 285573769}
+  BackButton: {fileID: 1280305464}
+  Context: {fileID: 134152613}
 --- !u!1 &2132942793
 GameObject:
   m_ObjectHideFlags: 0
