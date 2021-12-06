@@ -74,6 +74,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _Index: {fileID: 8772642535305010606}
   _playerName: {fileID: 8772642536133181170}
+  _readyText: {fileID: 8772642536817692859}
   _ready: 0
 --- !u!1 &8772642535305010604
 GameObject:

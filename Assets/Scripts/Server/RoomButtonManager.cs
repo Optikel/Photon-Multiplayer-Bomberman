@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 using Photon.Pun;
+using Photon.Realtime;
+
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 public class RoomButtonManager : MonoBehaviour
 {
     [SerializeField]
@@ -21,6 +24,13 @@ public class RoomButtonManager : MonoBehaviour
 
     void OnClickStart()
     {
+        Player localplayer = PhotonNetwork.LocalPlayer;
+        if (localplayer.CustomProperties.ContainsKey("Ready"))
+        {
+            Hashtable properties = new Hashtable();
+            properties.Add("Ready", !(bool)PhotonNetwork.LocalPlayer.CustomProperties["Ready"]);
+            PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
+        }
     }
 
     void OnClickBack()

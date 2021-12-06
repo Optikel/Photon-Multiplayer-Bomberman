@@ -11,7 +11,7 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
     [SerializeField]
     private PlayerListing _playerListing;
 
-    private List<PlayerListing> _listings = new List<PlayerListing>();
+    public List<PlayerListing> _listings = new List<PlayerListing>();
 
     public override void OnJoinedRoom()
     {
@@ -45,7 +45,7 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
             newlisting.SetPlayerInfo(newPlayer, PhotonNetwork.CurrentRoom.PlayerCount);
             _listings.Add(newlisting);
         }
-        UpdateIndex();
+        UpdateIndexes();
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
@@ -56,11 +56,23 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
             Destroy(_listings[index].gameObject);
             _listings.RemoveAt(index);
         }
-        UpdateIndex();
     }
 
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        foreach(PlayerListing listing in _listings)
+        {
+            if(listing.Player == targetPlayer)
+            {
+                if(changedProps.ContainsKey("Ready"))
+                {
+                    listing.SetReadyText((bool)changedProps["Ready"] ? "Ready" : "Not Ready");
+                }
+            }
+        }
+    }
 
-    void UpdateIndex()
+    void UpdateIndexes()
     {
         int index = 1;
         foreach (PlayerListing listing in _listings)
