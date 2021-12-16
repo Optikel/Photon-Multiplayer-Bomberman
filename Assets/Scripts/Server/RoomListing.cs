@@ -7,15 +7,11 @@ using Photon.Pun;
 using Photon.Realtime;
 public class RoomListing : MonoBehaviour, IPointerClickHandler
 {
-    [SerializeField]
-    private Text _roomName;
-    [SerializeField]
-    private Text _roomSize;
+    public Text _roomName;
+    public Text _roomSize;
 
-    [SerializeField]
     public RoomListingMenu menu;
 
-    [HideInInspector]
     public bool isSelected = false;
     public RoomInfo RoomInfo { get; private set; }
 

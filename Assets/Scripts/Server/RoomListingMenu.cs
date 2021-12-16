@@ -6,12 +6,9 @@ using Photon.Realtime;
 
 public class RoomListingMenu : MonoBehaviourPunCallbacks
 {
-    [SerializeField]
-    private RectTransform _content;
-    [SerializeField]
-    private RoomListing _roomListing;
+    public RectTransform _content;
+    public RoomListing _roomListing;
 
-    [SerializeField]
     public RoomListing activeListing = null;
 
     public List<RoomListing> _listings = new List<RoomListing>();
@@ -20,31 +17,41 @@ public class RoomListingMenu : MonoBehaviourPunCallbacks
     {
         foreach (RoomInfo info in roomList)
         {
-            if (info.RemovedFromList)
+            if (_listings.Count > 0)
             {
+                Debug.Log(_listings.Count);
                 int index = _listings.FindIndex(x => x.RoomInfo.Name == info.Name);
-                if(index != -1)
+                RoomListing listing = _listings[index];
+                if (info.RemovedFromList)
                 {
-                    Destroy(_listings[index].gameObject);
-                    _listings.RemoveAt(index);
+                    if (index != -1)
+                    {
+                        Destroy(listing.gameObject);
+                        _listings.RemoveAt(index);
+                    }
+                }
+                else
+                {
+                    listing.SetRoomInfo(info);
                 }
             }
-            else
+            else 
             {
-                RoomListing listing = Instantiate(_roomListing, _content);
-                if (listing != null)
-                    listing.SetRoomInfo(info);
-                _listings.Add(listing);
+                RoomListing newlisting = Instantiate(_roomListing, _content);
+                if (newlisting != null)
+                    newlisting.SetRoomInfo(info);
+                _listings.Add(newlisting);
             }
         }
     }
     #endregion
     public void DeleteRoomList()
     {
-        for(int index = 0; index < _content.childCount; index++)
+        foreach(RoomListing listing in _listings)
         {
-            Object.Destroy(_content.GetChild(index).gameObject);
+            Destroy(listing.gameObject);
         }
+        _listings.Clear();
     }
 
 }

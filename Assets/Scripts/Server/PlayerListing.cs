@@ -9,12 +9,9 @@ using Photon.Realtime;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 public class PlayerListing : MonoBehaviour
 {
-    [SerializeField]
-    private Text _Index;
-    [SerializeField]
-    private Text _playerName;
-    [SerializeField]
-    private Text _readyText;
+    public Text _Index;
+    public Text _playerName;
+    public Text _readyText;
 
     public Player Player { get; private set; }
     public void SetPlayerInfo(Player player, int index)
