@@ -98,6 +98,11 @@ public class NetworkController : MonoBehaviourPunCallbacks
     {
         Debug.Log("Room Created Failed - " + message);
     }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+    }
+
     #endregion
 
     #region UI CALLBACKS
@@ -153,6 +158,9 @@ public class NetworkController : MonoBehaviourPunCallbacks
                 if(PhotonNetwork.IsMasterClient && ActivePanel.GetComponentInChildren<PlayerListingMenu>().CheckAllReady())
                 {
                     Debug.Log("Starting game...");
+                    PhotonNetwork.CurrentRoom.IsOpen = false;
+                    PhotonNetwork.CurrentRoom.IsVisible = false;
+                    PhotonNetwork.LoadLevel("MainScene");
                 }
                 else
                 {
