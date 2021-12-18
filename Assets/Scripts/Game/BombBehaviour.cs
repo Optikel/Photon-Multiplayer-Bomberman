@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
+using Photon.Pun;
 
-public class BombBehaviour : MonoBehaviour
+public class BombBehaviour : MonoBehaviourPun
 {
     [Header("Prefabs")]
     public GameObject BombMesh;
@@ -62,12 +63,14 @@ public class BombBehaviour : MonoBehaviour
                         CountDown = 0;
                         if(deleteAfterExplosion)
                         {
-                            Object.Destroy(BombMesh.GetComponentInParent<Transform>().gameObject);
+                            PhotonNetwork.Destroy(photonView);
                         }
                     }
                     if (!m_Exploded)
                     {
-                        CreateExplosion(Explosion, Power);
+                        m_Exploded = true;
+                        if(photonView.IsMine)
+                            photonView.RPC("CreateExplosion", RpcTarget.All, photonView.ViewID, Power);
                     }
                     break;
                 }
@@ -88,45 +91,45 @@ public class BombBehaviour : MonoBehaviour
         }
     }
 
-    void CreateExplosion(GameObject ExplosionPreFab, float Power = 1)
+    [PunRPC]
+    void CreateExplosion(int viewID, int Power = 1)
     {
-        m_Exploded = true;
-        Transform centerPosition = BombMesh.GetComponent<Transform>().parent;
+        if (!photonView.IsMine)
+            return;
+
+        Debug.Log("Create Explosion by " + PhotonNetwork.LocalPlayer);
         //Spawn center
-        Instantiate(ExplosionPreFab, centerPosition);
-       
-        InstantiateExplosion(ExplosionPreFab, new Vector3(-1, 0,  0), centerPosition);
-        InstantiateExplosion(ExplosionPreFab, new Vector3( 1, 0,  0), centerPosition);
-        InstantiateExplosion(ExplosionPreFab, new Vector3( 0, 0, -1), centerPosition);
-        InstantiateExplosion(ExplosionPreFab, new Vector3( 0, 0,  1), centerPosition);
+        GameObject obj = PhotonNetwork.Instantiate(Explosion.name, transform.position, Quaternion.identity);
+        obj.GetPhotonView().RPC("AttachToBomb", RpcTarget.All, viewID);
+        
+        InstantiateExplosion(new Vector3(-1, 0,  0), viewID);
+        InstantiateExplosion(new Vector3( 1, 0,  0), viewID);
+        InstantiateExplosion(new Vector3( 0, 0, -1), viewID);
+        InstantiateExplosion(new Vector3( 0, 0,  1), viewID);
     }
-    void InstantiateExplosion(GameObject ExplosionPrefab, Vector3 direction, Transform Parent)
+    void InstantiateExplosion(Vector3 direction, int viewId)
     {
         bool bStop = false;
         for (int i = 1; i < Power; i++)
         {
-            if (!bStop)
-            {
-                Vector3 parentPosition = Parent.position;
-                if (CanSpawn(parentPosition, direction.normalized, i))
-                {
-                    GameObject obj = Instantiate(ExplosionPrefab, Parent);
-                    obj.GetComponent<Transform>().localPosition = direction * i;
+            if (bStop)
+                break;
 
-                    if (!Penetrative)
+            Vector3 parentPosition = transform.position;
+            if (CanSpawn(parentPosition, direction.normalized, i))
+            {
+                GameObject obj = PhotonNetwork.Instantiate(Explosion.name, parentPosition + direction * i, Quaternion.identity);
+                obj.GetPhotonView().RPC("AttachToBomb", RpcTarget.All, viewId);
+
+                if (!Penetrative)
+                {
+                    RaycastHit hit;
+                    Ray ray = new Ray(parentPosition, direction.normalized);
+                    if (Physics.Raycast(ray, out hit, i, LayerMask.GetMask("Destructable")))
                     {
-                        RaycastHit hit;
-                        Ray ray = new Ray(parentPosition, direction.normalized);
-                        if (Physics.Raycast(ray, out hit, i, LayerMask.GetMask("Destructable")))
-                        {
-                            bStop = true;
-                        }
+                        bStop = true;
                     }
                 }
-            }
-            else
-            {
-                break;
             }
         }
     }
@@ -136,5 +139,11 @@ public class BombBehaviour : MonoBehaviour
         //True if no collide, false if collide
         bool rayCollide = Physics.Raycast(Origin, Direction, Magnitude, LayerMask.GetMask("Indestructable"));
         return !rayCollide;
+    }
+
+    [PunRPC]
+    void AttachToContainer()
+    {
+        transform.parent = GameObject.Find("BombContainer").transform;
     }
 }

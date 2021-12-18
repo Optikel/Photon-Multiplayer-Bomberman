@@ -24,6 +24,8 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
                 listing.SetPlayerInfo(player, index);
                 _listings.Add(listing);
                 index++;
+
+                Debug.Log("Create List - " + player.NickName);
             }
         }
     }
@@ -67,7 +69,8 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
             object IsReady;
             if(player.CustomProperties.TryGetValue("Ready", out IsReady))
             {
-                allReady = (bool)IsReady;
+                if((bool)IsReady == false)
+                    allReady = false;
             }
         }
 
