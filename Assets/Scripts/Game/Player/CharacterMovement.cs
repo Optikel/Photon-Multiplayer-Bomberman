@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public class CharacterMovement : MonoBehaviour
+
+using Photon.Pun;
+using Cinemachine;
+public class CharacterMovement : MonoBehaviourPun
 {
 	public float turnSmoothness = 0.1f;
 	public float targetAngle;
@@ -22,8 +25,12 @@ public class CharacterMovement : MonoBehaviour
 	Vector3 startPosition;
 	bool moving;
 	float turnSmoothVelocity;
+
 	void Update()
 	{
+		if (!photonView.IsMine)
+			return;
+
 		if (moving)
 		{
 			if (Vector3.Distance(startPosition, transform.position) > 1f)
@@ -85,9 +92,7 @@ public class CharacterMovement : MonoBehaviour
 				moving = true;
 			}
 		}
-
 		TurnDirection(targetPosition - startPosition);
-
 	}
 
 	bool CanMove(Vector3 direction)
@@ -121,7 +126,6 @@ public class CharacterMovement : MonoBehaviour
 
 	void TurnDirection(Vector3 Direction)
     {
-
 		if (Direction.magnitude >= 0.1f)
 		{
 			Vector3 DirVec = Direction.normalized;
