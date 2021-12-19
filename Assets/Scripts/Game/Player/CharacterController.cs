@@ -104,6 +104,11 @@ public class CharacterController : MonoBehaviourPun
 
 	void ProcessKeyboard()
     {
+		object start;
+		PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(GameManager.ROOM_GAME_START, out start);
+		if (!(bool)start)
+			return;
+
 		if (Input.GetKey(KeyCode.W))
 		{
 			if (CanMove(Vector3.forward))

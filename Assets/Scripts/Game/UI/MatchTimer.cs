@@ -8,6 +8,7 @@ public class MatchTimer : MonoBehaviourPun
 {
     public Text UI_MatchTimer;
 
+    public Coroutine TimerCoroutine;
     [SerializeField]
     double MatchDuration = 10;
     private void OnEnable()
@@ -16,24 +17,28 @@ public class MatchTimer : MonoBehaviourPun
         if (PhotonNetwork.IsMasterClient)
             photonView.RPC("StartMatchTime", RpcTarget.AllBuffered, PhotonNetwork.Time);
     }
+
     // Update is called once per frame
     void Update()
     {
     }
 
-    IEnumerator StartTimerCountDown(double startTime)
+    public IEnumerator StartTimerCountDown(double startTime)
     {
         while((PhotonNetwork.Time - startTime) < MatchDuration)
         {
             UpdateUITimer(MatchDuration - (PhotonNetwork.Time - startTime));
             yield return null;
         }
+
+        if(PhotonNetwork.IsMasterClient)
+            photonView.RPC("EndGame", RpcTarget.AllBuffered);
     }
 
     [PunRPC]
     void StartMatchTime(double startTime)
     {
-        StartCoroutine(StartTimerCountDown(startTime));
+        TimerCoroutine = StartCoroutine(StartTimerCountDown(startTime));
     }
 
     void UpdateUITimer(double time)

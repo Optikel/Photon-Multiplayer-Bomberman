@@ -5,24 +5,24 @@ using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
+using UnityEngine.Events;
 
 public class CountDown : MonoBehaviourPunCallbacks
 {
     public Text UI_CountDown;
 
+    public UnityEvent CountDownFinishEvent;
+    public Coroutine CountDownTimer;
     int iCountDown = 3;
-    // Start is called before the first frame update
-    void Start()
+   
+    void Awake()
     {
-        if(CheckAllPlayerLoadedLevel())
-            photonView.RPC("StartCountDown", RpcTarget.AllBuffered, PhotonNetwork.Time);
-    }
+        if (CountDownFinishEvent == null)
+            CountDownFinishEvent = new UnityEvent();
 
-    // Update is called once per frame
-    void Update()
-    {
+        CountDownFinishEvent.AddListener(OnCountDownEnd);
     }
-    IEnumerator StartTimerCountDown(double startTime)
+    public IEnumerator StartTimerCountDown(double startTime)
     {
         while ((PhotonNetwork.Time - startTime) < iCountDown)
         {
@@ -30,14 +30,15 @@ public class CountDown : MonoBehaviourPunCallbacks
             yield return null;
         }
 
-        UI_CountDown.gameObject.SetActive(false);
-        GetComponent<MatchTimer>().enabled = true;
+        if (PhotonNetwork.IsMasterClient)
+            photonView.RPC("StartGame", RpcTarget.All);
+        CountDownFinishEvent.Invoke();
     }
-
+            
     [PunRPC]
     void StartCountDown(double startTime)
     {
-        StartCoroutine(StartTimerCountDown(startTime));
+        CountDownTimer = StartCoroutine(StartTimerCountDown(startTime));
     }
 
     void UpdateUITimer(double time)
@@ -47,23 +48,20 @@ public class CountDown : MonoBehaviourPunCallbacks
         UI_CountDown.text = string.Format("{0:D1}", t.Seconds);
     }
 
-    private bool CheckAllPlayerLoadedLevel()
+
+    private void OnDestroy()
     {
-        //foreach (Player p in PhotonNetwork.PlayerList)
-        //{
-        //    object playerLoadedLevel;
-        //    p
-        //    if (p.CustomProperties.TryGetValue(JLGame.PLAYER_LOADED_LEVEL, out playerLoadedLevel))
-        //    {
-        //        if ((bool)playerLoadedLevel)
-        //        {
-        //            continue;
-        //        }
-        //    }
+        CountDownFinishEvent.RemoveListener(OnCountDownEnd);
+    }
+    void OnCountDownEnd()
+    {
+        photonView.RPC("OnCountDownEndRPC", RpcTarget.AllBuffered);
+    }
 
-        //    return false;
-        //}
-
-        return true;
+    [PunRPC]
+    void OnCountDownEndRPC()
+    {
+        GetComponent<CountDown>().UI_CountDown.gameObject.SetActive(false);
+        GetComponent<MatchTimer>().enabled = true;
     }
 }

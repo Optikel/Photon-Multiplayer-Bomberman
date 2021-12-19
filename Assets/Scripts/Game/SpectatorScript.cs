@@ -24,13 +24,26 @@ public class SpectatorScript : MonoBehaviourPun
     {
         if (!photonView.IsMine)
             return;
+
         ProcessInput();
-        VCamera.Follow = PlayerContainer.GetComponentsInChildren<PlayerInstantiation>()[SpectateIndex].transform;
+        if (PlayerContainer.transform.childCount > 0)
+        {
+            VCamera.Follow = PlayerContainer.GetComponentsInChildren<PlayerInstantiation>()[SpectateIndex].transform;
+        }
+        else
+        {
+            VCamera.Follow = null;
+        }
+       
     }
 
     void ProcessInput()
     {
-        
+        object start;
+        PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(GameManager.ROOM_GAME_START, out start);
+        if (!(bool)start)
+            return;
+
         if (Input.GetKeyDown(KeyCode.A))
         {
             SpectateIndex--;

@@ -63,7 +63,8 @@ public class BombBehaviour : MonoBehaviourPun
                         CountDown = 0;
                         if(deleteAfterExplosion)
                         {
-                            PhotonNetwork.Destroy(photonView);
+                            if(photonView.IsMine)
+                                PhotonNetwork.Destroy(photonView);
                         }
                     }
                     if (!m_Exploded)
