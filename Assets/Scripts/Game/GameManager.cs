@@ -76,7 +76,10 @@ public class GameManager : MonoBehaviourPunCallbacks
             StopCoroutine(GetComponent<MatchTimer>().TimerCoroutine);
 
         UI_Winner.gameObject.SetActive(true);
-        UI_Winner.text = UI_Winner.text.Replace("*Name*", FindLastPlayerAlive().NickName);
+        if (CheckLastPlayerAlive())
+            UI_Winner.text = UI_Winner.text.Replace("*Name*", FindLastPlayerAlive().NickName);
+        else
+            UI_Winner.text = "TIE \n WHY NO WINNER?!";
 
         StartCoroutine(SendToLobby());
     }
@@ -189,10 +192,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     IEnumerator SendToLobby()
     {
         yield return new WaitForSeconds(1); //TODO: Adjust Lobby Scripts to accept load lobby without having to disconnect
-        PhotonNetwork.LeaveRoom();
-        PhotonNetwork.LeaveLobby();
-        PhotonNetwork.Disconnect();
-        yield return new WaitForSeconds(1);
         PhotonNetwork.LoadLevel("Lobby");
     }
 }

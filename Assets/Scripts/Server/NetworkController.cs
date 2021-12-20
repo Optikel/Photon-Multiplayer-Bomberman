@@ -38,7 +38,16 @@ public class NetworkController : MonoBehaviourPunCallbacks
         ServerStatus.text = ServerStatus.text.Replace("*Server Status*", "Connecting to server...");
 
         PhotonNetwork.GameVersion = "0.0.1";
-        PhotonNetwork.ConnectUsingSettings(); //Connects to Photon master servers
+
+        if (!PhotonNetwork.IsConnected)
+            PhotonNetwork.ConnectUsingSettings(); //Connects to Photon master servers
+        else
+        {
+            ServerStatus.text = ServerStatus.text.Replace("Connecting to server...", PhotonNetwork.ServerAddress);
+
+            if (PhotonNetwork.InRoom) OnJoinedRoom();
+            else if (PhotonNetwork.InLobby) OnJoinedLobby();
+        }
     }
 
     #region PUN CallBacks
@@ -85,7 +94,6 @@ public class NetworkController : MonoBehaviourPunCallbacks
         
         Debug.Log(PhotonNetwork.NickName + " joined Room(" + PhotonNetwork.CurrentRoom.Name + ") Successfully!");
         RoomName.text = RoomName.text.Replace("*Room Name*", PhotonNetwork.CurrentRoom.Name);
-        ActivePanel.GetComponentInChildren<PlayerListingMenu>().CreateList();
     }
 
     public override void OnLeftRoom()
@@ -97,6 +105,32 @@ public class NetworkController : MonoBehaviourPunCallbacks
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
         Debug.Log("Room Created Failed - " + message);
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        ActivePanel.GetComponentInChildren<PlayerListingMenu>().InsertList(newPlayer);
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        ActivePanel.GetComponentInChildren<PlayerListingMenu>().RemoveFromList(otherPlayer);
+    }
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        PlayerListingMenu menu = ActivePanel.GetComponentInChildren<PlayerListingMenu>();
+
+        foreach (PlayerListing listing in menu._listings)
+        {
+            if (listing.Player == targetPlayer)
+            {
+                if (changedProps.ContainsKey("Ready"))
+                {
+                    listing.SetReadyText((bool)changedProps["Ready"] ? "Ready" : "Not Ready");
+                }
+            }
+        }
     }
 
     public override void OnMasterClientSwitched(Player newMasterClient)

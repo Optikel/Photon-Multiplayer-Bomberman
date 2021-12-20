@@ -12,7 +12,11 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
 
     public List<PlayerListing> _listings = new List<PlayerListing>();
 
-
+    public override void OnEnable()
+    {
+        Debug.Log("Playerlist Enabled");
+        CreateList();
+    }
     public void CreateList()
     {
         int index = 1;
@@ -24,14 +28,13 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
                 listing.SetPlayerInfo(player, index);
                 _listings.Add(listing);
                 index++;
-
-                Debug.Log("Create List - " + player.NickName);
             }
         }
     }
     
     public void InsertList(Player newPlayer)
     {
+        Debug.Log("Insert " + newPlayer.NickName);
         PlayerListing newlisting = Instantiate(_playerListing, _list);
         if (newlisting != null)
         {
@@ -75,30 +78,6 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
         }
 
         return allReady;
-    }
-
-    public override void OnPlayerEnteredRoom(Player newPlayer)
-    {
-        InsertList(newPlayer);
-    }
-
-    public override void OnPlayerLeftRoom(Player otherPlayer)
-    {
-        RemoveFromList(otherPlayer);
-    }
-
-    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
-    {
-        foreach (PlayerListing listing in _listings)
-        {
-            if(listing.Player == targetPlayer)
-            {
-                if(changedProps.ContainsKey("Ready"))
-                {
-                    listing.SetReadyText((bool)changedProps["Ready"] ? "Ready" : "Not Ready");
-                }
-            }
-        }
     }
 
     void UpdatePlayerIndex()
