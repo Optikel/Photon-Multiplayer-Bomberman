@@ -10,23 +10,27 @@ public class BombBehaviour : MonoBehaviourPun
     [Header("Prefabs")]
     public GameObject BombMesh;
     public GameObject Explosion;
-    
+
     [Header("Timing")]
-    public float Timer = 3f;
+    public float PrimingTime = 3f;
+    public float LingerTime = 1f;
     public float RateOfBlink = 1f;
 
+    public Vector3 Velocity = Vector3.zero;
     [Header("Debug")]
     public bool deleteAfterExplosion = true;
 
     //For Exploding 
-    public BombState State = BombState.Blink;
+    private BombState State = BombState.Blink;
     private float CountDown = 0f;
     private float BlinkingTimer = 0f;
     private bool m_Exploded = false;
-
+    private Color BaseColor;
     //Properties
     int Power = 0;
-    bool Penetrative = false;
+
+    [SerializeField]
+    public bool Penetrative = false;
 
     public enum BombState
     {
@@ -38,20 +42,21 @@ public class BombBehaviour : MonoBehaviourPun
     void Start()
     {
         transform.parent = GameObject.Find("BombContainer").transform;
+        BaseColor = BombMesh.GetComponent<MeshRenderer>().material.color;
     }
 
     // Update is called once per frame
     void Update()
     {
         CountDown += Time.deltaTime;
-        Blink(RateOfBlink, Color.black, Color.red);
+        Blink(RateOfBlink, BaseColor, Color.red);
 
         switch (State)
         {
             case BombState.Blink:
                 {
                     //Hide bomb Mesh
-                    if (CountDown >= Timer)
+                    if (CountDown >= PrimingTime)
                     {
                         BombMesh.SetActive(false);
                         CountDown = 0;
@@ -61,8 +66,16 @@ public class BombBehaviour : MonoBehaviourPun
                 }
             case BombState.Explode:
                 {
+                    if (!m_Exploded)
+                    {
+                        m_Exploded = true;
+                        if (photonView.IsMine)
+                        {
+                            photonView.RPC("CreateExplosion", RpcTarget.All, photonView.ViewID);
+                        }
+                    }
                     //Destroy Object
-                    if (CountDown >= 1)
+                    else if (CountDown >= LingerTime)
                     {
                         CountDown = 0;
                         if(deleteAfterExplosion)
@@ -73,14 +86,7 @@ public class BombBehaviour : MonoBehaviourPun
                             }
                         }
                     }
-                    if (!m_Exploded)
-                    {
-                        m_Exploded = true;
-                        if(photonView.IsMine)
-                        {
-                            photonView.RPC("CreateExplosion", RpcTarget.All, photonView.ViewID);
-                        }
-                    }
+                   
                     break;
                 }
             default:
@@ -88,6 +94,16 @@ public class BombBehaviour : MonoBehaviourPun
         }
     }
 
+    private void FixedUpdate()
+    {
+        Ray ray = new Ray(transform.position, Velocity.normalized);
+        if(Physics.Raycast(ray, 0.6f, LayerMask.GetMask("Destructable")))
+        {
+            Velocity = Vector3.zero;
+        }
+
+        transform.position += Velocity * Time.fixedDeltaTime;
+    }
     void Blink(float intervals, Color originalColor, Color blinkColor)
     {
         BlinkingTimer += Time.deltaTime;
@@ -110,18 +126,16 @@ public class BombBehaviour : MonoBehaviourPun
             {
                 character.GetComponent<PlayerInstantiation>().CurrentBombUsed--;
                 Power = BaseFirePower + character.GetComponent<PlayerInstantiation>().PowerIncrease;
-                Penetrative = character.GetComponent<PlayerInstantiation>().Penetrative;
             }
         }
 
         if (!photonView.IsMine)
             return;
 
-        Debug.Log("Create Explosion by " + PhotonNetwork.LocalPlayer);
         //Spawn center
         GameObject obj = PhotonNetwork.Instantiate(Explosion.name, transform.position, Quaternion.identity);
         obj.GetPhotonView().RPC("AttachToBomb", RpcTarget.All, viewID);
-        
+
         InstantiateExplosion(new Vector3(-1, 0,  0), viewID);
         InstantiateExplosion(new Vector3( 1, 0,  0), viewID);
         InstantiateExplosion(new Vector3( 0, 0, -1), viewID);
@@ -158,5 +172,15 @@ public class BombBehaviour : MonoBehaviourPun
         //True if no collide, false if collide
         bool rayCollide = Physics.Raycast(Origin, Direction, Magnitude, LayerMask.GetMask("Indestructable"));
         return !rayCollide;
+    }
+    public void SetState(BombState state)
+    {
+        State = state;
+        CountDown = 0;
+    }
+    public void ChainExplode()
+    {
+        if(State != BombState.Explode)
+            CountDown = PrimingTime - 0.1f;
     }
 }

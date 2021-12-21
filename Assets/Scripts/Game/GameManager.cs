@@ -35,7 +35,6 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         return Color.black;
     }
-
     void Start()
     {
         transform.SetSiblingIndex(99);
@@ -97,32 +96,41 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         if (changedProps.ContainsKey(PLAYER_LOADED_LEVEL))
         {
-            if (!(gameStarted == null ? false : (bool)gameStarted))
+            if (changedProps[PLAYER_LOADED_LEVEL] != null)
             {
-                if (CheckAllPlayerLoadedLevel())
+                if (!(gameStarted == null ? false : (bool)gameStarted)) //done
                 {
-                    GetComponent<PlayerSpawn>().Spawn();
+                    if (CheckAllPlayerLoadedLevel()) //Problem
+                    {
+                        GetComponent<PlayerSpawn>().Spawn();
 
-                    if (PhotonNetwork.IsMasterClient)
-                        photonView.RPC("StartCountDown", RpcTarget.AllBuffered, PhotonNetwork.Time);
+                        if (PhotonNetwork.IsMasterClient)
+                        {
+                            Debug.Log("Starting CountdownTimerRPC");
+                            photonView.RPC("StartCountDown", RpcTarget.All, PhotonNetwork.Time);
+                        }
+                    }
                 }
             }
         }
         if (changedProps.ContainsKey(PLAYER_ALIVE))
         {
-            if (gameStarted == null ? false : (bool)gameStarted) //Make sure game has already started
+            if (changedProps[PLAYER_ALIVE] != null)
             {
-                if(CheckNumPlayersAlive() <= 1)
+                if (gameStarted == null ? false : (bool)gameStarted) //Make sure game has already started
                 {
-                    if (PhotonNetwork.IsMasterClient)
+                    if (CheckNumPlayersAlive() <= 1)
                     {
-                        Hashtable roomprops = new Hashtable
+                        if (PhotonNetwork.IsMasterClient)
+                        {
+                            Hashtable roomprops = new Hashtable
                         {
                             {ROOM_GAME_START, false}
                         };
 
-                        PhotonNetwork.CurrentRoom.SetCustomProperties(roomprops);
-                        photonView.RPC("EndGame", RpcTarget.AllBuffered);
+                            PhotonNetwork.CurrentRoom.SetCustomProperties(roomprops);
+                            photonView.RPC("EndGame", RpcTarget.AllBuffered);
+                        }
                     }
                 }
             }
@@ -214,7 +222,31 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     IEnumerator SendToLobby()
     {
-        yield return new WaitForSeconds(ToLobbyTimer); 
-        PhotonNetwork.LoadLevel("Lobby");
+        Debug.Log("Sending To Lobby...");
+        yield return new WaitForSeconds(ToLobbyTimer);
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.CurrentRoom.SetCustomProperties(new Hashtable());
+
+            Hashtable props = new Hashtable
+            {
+                {PLAYER_LOADED_LEVEL, null},
+                {PLAYER_ALIVE, null}
+            };
+            foreach (Player p in PhotonNetwork.PlayerList)
+            {
+                p.SetCustomProperties(props);
+            }
+
+            PhotonNetwork.DestroyAll();
+            PhotonNetwork.OpRemoveCompleteCache(); //Remove any buffered rpc or events
+            PhotonNetwork.LoadLevel("Lobby");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
     }
 }

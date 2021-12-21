@@ -6,9 +6,23 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class ExplosionBehaviour : MonoBehaviourPun
 {
+    [SerializeField]
+    Material NonPenetrativeMaterial;
+    [SerializeField]
+    Material PenetrativeMaterial;
     // Start is called before the first frame update
     void Start()
     {
+        BombBehaviour parentbomb;
+
+        if (transform.parent.TryGetComponent<BombBehaviour>(out parentbomb))
+        {
+            GetComponent<MeshRenderer>().material = parentbomb.Penetrative ? PenetrativeMaterial : NonPenetrativeMaterial;
+        }
+        else
+        {
+            Debug.LogError("BombBehaviour is not parent of Explosion");
+        }
         
     }
 
@@ -50,14 +64,12 @@ public class ExplosionBehaviour : MonoBehaviourPun
                 PhotonNetwork.Instantiate("SpectatorView", Vector3.zero, Quaternion.identity);
         }
 
-        Debug.Log(other.gameObject);
         if (other.CompareTag("Bombs"))
         {
             BombBehaviour bomb;
             if (other.TryGetComponent<BombBehaviour>(out bomb))
             {
-                Debug.Log("Chain");
-                bomb.State = BombBehaviour.BombState.Explode;
+                bomb.ChainExplode();
             }
         }
     }

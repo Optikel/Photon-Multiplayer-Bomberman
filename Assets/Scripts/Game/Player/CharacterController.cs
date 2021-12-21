@@ -24,6 +24,7 @@ public class CharacterController : MonoBehaviourPun
 
 	[Header("Bomb")]
 	public GameObject BombObj;
+	public GameObject SpikeBomb;
 
 	[Header("Debug")]
 	public float turnSmoothness = 0.1f;
@@ -60,8 +61,6 @@ public class CharacterController : MonoBehaviourPun
 
 		DrawDebugLine();
 		ProcessKeyboard();
-		TurnDirection(targetPosition - startPosition);
-
 	}
 	bool CanMove(Vector3 direction)
 	{
@@ -119,6 +118,8 @@ public class CharacterController : MonoBehaviourPun
 				startPosition = transform.position;
 				moving = true;
 			}
+
+			TurnDirection(Vector3.forward);
 		}
 		else if (Input.GetKey(KeyCode.S))
 		{
@@ -128,6 +129,8 @@ public class CharacterController : MonoBehaviourPun
 				startPosition = transform.position;
 				moving = true;
 			}
+
+			TurnDirection(Vector3.back);
 		}
 		else if (Input.GetKey(KeyCode.A))
 		{
@@ -137,6 +140,8 @@ public class CharacterController : MonoBehaviourPun
 				startPosition = transform.position;
 				moving = true;
 			}
+
+			TurnDirection(Vector3.left);
 		}
 		else if (Input.GetKey(KeyCode.D))
 		{
@@ -146,6 +151,8 @@ public class CharacterController : MonoBehaviourPun
 				startPosition = transform.position;
 				moving = true;
 			}
+
+			TurnDirection(Vector3.right);
 		}
 		
 		if (Input.GetKeyDown(KeyCode.Space))
@@ -153,6 +160,22 @@ public class CharacterController : MonoBehaviourPun
 			if(GetComponent<PlayerInstantiation>().CanBomb())
 				photonView.RPC("SpawnBomb", RpcTarget.AllBuffered);
 		}
+
+		if(Input.GetKeyDown(KeyCode.LeftShift))
+        {
+			if(GetComponent<PlayerInstantiation>().CanPunch)
+            {
+				Vector3 DirectionVector = transform.forward;
+
+				RaycastHit hit;
+				Ray ray = new Ray(targetPosition + Vector3.up * rayOffsetY, DirectionVector);
+				Debug.Log(ray);
+				if (Physics.Raycast(ray, out hit, 2f, LayerMask.GetMask("Bomb")))
+				{
+					hit.transform.gameObject.GetComponent<BombBehaviour>().Velocity = DirectionVector * 10;
+				}
+			}
+        }
 	}
 
 	void DrawDebugLine()
@@ -193,7 +216,7 @@ public class CharacterController : MonoBehaviourPun
 
 		if (available)
 		{
-			GameObject bomb = PhotonNetwork.Instantiate(BombObj.name, position, Quaternion.identity);
+			GameObject bomb = PhotonNetwork.Instantiate(GetComponent<PlayerInstantiation>().Penetrative ? SpikeBomb.name : BombObj.name, position, Quaternion.identity);
 		}
 	}
 }

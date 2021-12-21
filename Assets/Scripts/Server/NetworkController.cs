@@ -174,8 +174,7 @@ public class NetworkController : MonoBehaviourPunCallbacks
         RoomOptions options = new RoomOptions();
         options.MaxPlayers = 4;
         options.IsVisible = true;
-        //options.CleanupCacheOnLeave = false;
-
+        options.DeleteNullProperties = true;
         PhotonNetwork.CreateRoom(roomName, options, TypedLobby.Default);
     }
 
@@ -200,6 +199,7 @@ public class NetworkController : MonoBehaviourPunCallbacks
                     Debug.Log("Starting game...");
                     PhotonNetwork.CurrentRoom.IsOpen = false;
                     PhotonNetwork.CurrentRoom.IsVisible = false;
+                    PhotonNetwork.DestroyAll();
                     PhotonNetwork.LoadLevel("MainScene");
                 }
                 else

@@ -7,9 +7,9 @@ using Photon.Realtime;
 
 public class PlayerInstantiation : MonoBehaviourPun
 {
-    
-    
+    public GameObject PlayerMesh;
 
+    [Header("Stats")]
     const int MinPower = 0;
     const int MaxPower = 10;
     [SerializeField]
@@ -21,9 +21,7 @@ public class PlayerInstantiation : MonoBehaviourPun
     [SerializeField]
     [Range(MinBombCount, MaxBombCount)]
     public int BombCount;
-
     public int CurrentBombUsed = 0;
-
 
     const int MinSpeedMultiplier = 0;
     const int MaxSpeedMultiplier = 10;
@@ -31,6 +29,8 @@ public class PlayerInstantiation : MonoBehaviourPun
     [Range(MinSpeedMultiplier, MaxSpeedMultiplier)]
     public int SpeedMultiplier;
 
+    [SerializeField]
+    public bool CanPunch = false;
 
     [SerializeField]
     public bool Penetrative = false;
@@ -40,6 +40,10 @@ public class PlayerInstantiation : MonoBehaviourPun
         //Putting player GO into a PlayerContainer 
         transform.parent = GameObject.Find("PlayerContainer").transform;
 
+        Material newMaterial = new Material(PlayerMesh.GetComponent<MeshRenderer>().material);
+        newMaterial.SetColor("_Color", GameManager.GetColor(photonView.OwnerActorNr - 1));
+        PlayerMesh.GetComponent<MeshRenderer>().material = newMaterial;
+        
         //Setting virtualCamera to look at newPlayer(belongs to you)
         if (photonView.IsMine)
         {
@@ -74,5 +78,16 @@ public class PlayerInstantiation : MonoBehaviourPun
     void SetSpeed(int speed)
     {
         SpeedMultiplier = Mathf.Clamp(speed, MinSpeedMultiplier, MaxSpeedMultiplier);
+    }
+    [PunRPC]
+    void EnablePunch()
+    {
+        CanPunch = true;
+    }
+
+    [PunRPC]
+    void EnablePenetration()
+    {
+        Penetrative = true;
     }
 }

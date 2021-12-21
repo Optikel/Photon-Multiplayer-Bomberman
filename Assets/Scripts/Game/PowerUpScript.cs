@@ -9,7 +9,8 @@ public class PowerUpScript : MonoBehaviourPun
         BombUp,
         FireUp,
         SpeedUp,
-        Kick
+        BoxingGlove,
+        SpikeBomb
     }
 
     public PowerUpType Type;
@@ -36,7 +37,7 @@ public class PowerUpScript : MonoBehaviourPun
 
         PlayerInstantiation player;
         if (other.TryGetComponent<PlayerInstantiation>(out player))
-        { 
+        {
             PhotonNetwork.Destroy(photonView);
             switch (Type)
             {
@@ -49,7 +50,14 @@ public class PowerUpScript : MonoBehaviourPun
                 case PowerUpType.SpeedUp:
                     player.photonView.RPC("SetSpeed", RpcTarget.AllBuffered, player.SpeedMultiplier + 1);
                     break;
-                case PowerUpType.Kick:
+                case PowerUpType.BoxingGlove:
+                    player.photonView.RPC("EnablePunch", RpcTarget.AllBuffered);
+                    break;
+                case PowerUpType.SpikeBomb:
+                    player.photonView.RPC("EnablePenetration", RpcTarget.AllBuffered);
+                    break;
+                default:
+                    Debug.LogError("Missing PowerUp Type?");
                     break;
             }
         }

@@ -12,8 +12,7 @@ public class BlockBehaviour : MonoBehaviourPun
         public float WeightedChance;
     }
     
-    [SerializeField]
-    List<PowerUps> PowerUpList;
+    public List<PowerUps> PowerUpList;
 
     float TotalWeight = 0;
     GameObject PowerUpContainer;

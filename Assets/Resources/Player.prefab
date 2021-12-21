@@ -72,10 +72,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbdfa373256377041976f723578b9cbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlayerMesh: {fileID: 418125072712953095}
   PowerIncrease: 0
-  BombCount: 2
+  BombCount: 1
   CurrentBombUsed: 0
-  SpeedMultiplier: 5
+  SpeedMultiplier: 0
+  CanPunch: 1
   Penetrative: 0
 --- !u!114 &3927807439581878913
 MonoBehaviour:
@@ -89,13 +91,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2fbf060645f56149846aed92dfb672d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BaseSpeed: 1.5
+  BaseSpeed: 2
   SpeedMultiplierValue: 0.5
   rayLength: 1.4
   rayOffsetX: 0.25
   rayOffsetY: 0
   rayOffsetZ: 0.25
   BombObj: {fileID: 1277343541577094855, guid: f1c8d35fb4612bc44af43b1ec900bb70, type: 3}
+  SpikeBomb: {fileID: 8612236847388354078, guid: 0decec58aeb68744f97a5e3ecf9ce59d, type: 3}
   turnSmoothness: 0.1
   targetAngle: 0
   targetPosition: {x: 0, y: 0, z: 0}
@@ -203,7 +206,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 2ff207890c740864da89be312d876db9, type: 2}
+  - {fileID: 2100000, guid: f1d69c19cec342144b42b7a9fe034f04, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -285,7 +288,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 2ff207890c740864da89be312d876db9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
