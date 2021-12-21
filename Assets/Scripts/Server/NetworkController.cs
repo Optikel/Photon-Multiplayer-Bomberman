@@ -45,7 +45,12 @@ public class NetworkController : MonoBehaviourPunCallbacks
         {
             ServerStatus.text = ServerStatus.text.Replace("Connecting to server...", PhotonNetwork.ServerAddress);
 
-            if (PhotonNetwork.InRoom) OnJoinedRoom();
+            if (PhotonNetwork.InRoom)
+            {
+                PhotonNetwork.CurrentRoom.IsOpen = true;
+                PhotonNetwork.CurrentRoom.IsVisible = true;
+                OnJoinedRoom();
+            }
             else if (PhotonNetwork.InLobby) OnJoinedLobby();
         }
     }
@@ -169,6 +174,7 @@ public class NetworkController : MonoBehaviourPunCallbacks
         RoomOptions options = new RoomOptions();
         options.MaxPlayers = 4;
         options.IsVisible = true;
+        //options.CleanupCacheOnLeave = false;
 
         PhotonNetwork.CreateRoom(roomName, options, TypedLobby.Default);
     }

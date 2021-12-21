@@ -4,11 +4,15 @@ using UnityEngine;
 
 using Photon.Pun;
 using Cinemachine;
+
+[RequireComponent(typeof(PlayerInstantiation))]
 public class CharacterController : MonoBehaviourPun
 {
 	[Header("Movement")]
 	[SerializeField]
-	float moveSpeed = 0.25f;
+	float BaseSpeed = 1.5f;
+	[SerializeField]
+	float SpeedMultiplierValue = 0.5f;
 	[SerializeField]
 	float rayLength = 1.4f;
 	[SerializeField]
@@ -20,8 +24,6 @@ public class CharacterController : MonoBehaviourPun
 
 	[Header("Bomb")]
 	public GameObject BombObj;
-	[Range(0, 10)]
-	public int MaxBombs;
 
 	[Header("Debug")]
 	public float turnSmoothness = 0.1f;
@@ -52,7 +54,7 @@ public class CharacterController : MonoBehaviourPun
 				return;
 			}
 
-			transform.position += (targetPosition - startPosition) * moveSpeed * Time.deltaTime;
+			transform.position += (targetPosition - startPosition) * (BaseSpeed + GetComponent<PlayerInstantiation>().SpeedMultiplier * SpeedMultiplierValue) * Time.deltaTime;
 			return;
 		}
 
@@ -148,7 +150,8 @@ public class CharacterController : MonoBehaviourPun
 		
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
-			photonView.RPC("SpawnBomb", RpcTarget.All);
+			if(GetComponent<PlayerInstantiation>().CanBomb())
+				photonView.RPC("SpawnBomb", RpcTarget.AllBuffered);
 		}
 	}
 
@@ -171,6 +174,7 @@ public class CharacterController : MonoBehaviourPun
 	[PunRPC]
 	void SpawnBomb()
 	{
+		GetComponent<PlayerInstantiation>().CurrentBombUsed++;
 		if (!photonView.IsMine)
 			return;
 
@@ -190,9 +194,6 @@ public class CharacterController : MonoBehaviourPun
 		if (available)
 		{
 			GameObject bomb = PhotonNetwork.Instantiate(BombObj.name, position, Quaternion.identity);
-			bomb.GetPhotonView().RPC("AttachToContainer", RpcTarget.All);
-			//bomb.transform.parent = GameObject.Find("BombContainer").transform;
 		}
-		//bomb.GetComponent<Collider>().enabled = false;
 	}
 }

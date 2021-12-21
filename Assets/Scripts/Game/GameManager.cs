@@ -9,12 +9,16 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
+    public GameObject Map;
+    
     public CinemachineVirtualCamera VCamera;
     public GameObject PlayerContainer;
     public GameObject BombContainer;
     public Text UI_Winner; 
 
     public bool GameStarted;
+    public int ToLobbyTimer = 5;
+    
     public const string PLAYER_ALIVE = "PlayerAlive";
     public const string PLAYER_LOADED_LEVEL = "PlayerLoadedLevel";
 
@@ -34,8 +38,10 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        transform.SetSiblingIndex(99);
         if (PhotonNetwork.IsMasterClient)
         {
+            PhotonNetwork.InstantiateRoomObject("Map", Vector3.zero, Quaternion.identity);
             Hashtable roomprops = new Hashtable
             {
                 {ROOM_GAME_START, false}
@@ -49,7 +55,6 @@ public class GameManager : MonoBehaviourPunCallbacks
                 {PLAYER_ALIVE, true}
             };
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
-
     }
 
     [PunRPC]
@@ -76,9 +81,9 @@ public class GameManager : MonoBehaviourPunCallbacks
             StopCoroutine(GetComponent<MatchTimer>().TimerCoroutine);
 
         UI_Winner.gameObject.SetActive(true);
-        if (CheckLastPlayerAlive())
+        if (CheckNumPlayersAlive() == 1)
             UI_Winner.text = UI_Winner.text.Replace("*Name*", FindLastPlayerAlive().NickName);
-        else
+        else 
             UI_Winner.text = "TIE \n WHY NO WINNER?!";
 
         StartCoroutine(SendToLobby());
@@ -107,7 +112,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (gameStarted == null ? false : (bool)gameStarted) //Make sure game has already started
             {
-                if(CheckLastPlayerAlive())
+                if(CheckNumPlayersAlive() <= 1)
                 {
                     if (PhotonNetwork.IsMasterClient)
                     {
@@ -131,8 +136,30 @@ public class GameManager : MonoBehaviourPunCallbacks
             GameStarted = (bool)propertiesThatChanged[ROOM_GAME_START];
         }
     }
-    #endregion
 
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        if (PhotonNetwork.CurrentRoom.PlayerCount > 0)
+        {
+            if (otherPlayer.IsMasterClient)
+            {
+                Player newMaster = null;
+                while (newMaster != null)
+                {
+                    int i = 0;
+                    newMaster = PhotonNetwork.CurrentRoom.GetPlayer(++i);   
+                }
+                PhotonNetwork.SetMasterClient(newMaster);
+            }
+        }
+           
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        Debug.Log("New Master Client is now " + newMasterClient.NickName + " (" + newMasterClient.ActorNumber + ")");
+    }
+    #endregion
     private bool CheckAllPlayerLoadedLevel()
     {
         foreach (Player p in PhotonNetwork.PlayerList)
@@ -149,11 +176,10 @@ public class GameManager : MonoBehaviourPunCallbacks
 
             return false;
         }
-
         return true;
     }
 
-    private bool CheckLastPlayerAlive()
+    private int CheckNumPlayersAlive()
     {
         int AliveCount = 0;
         foreach (Player p in PhotonNetwork.PlayerList)
@@ -169,10 +195,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
         }
 
-        if (AliveCount <= 1)
-            return true;
-        else
-            return false;
+        return AliveCount;
     }
 
     private Player FindLastPlayerAlive()
@@ -191,7 +214,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     IEnumerator SendToLobby()
     {
-        yield return new WaitForSeconds(1); //TODO: Adjust Lobby Scripts to accept load lobby without having to disconnect
+        yield return new WaitForSeconds(ToLobbyTimer); 
         PhotonNetwork.LoadLevel("Lobby");
     }
 }

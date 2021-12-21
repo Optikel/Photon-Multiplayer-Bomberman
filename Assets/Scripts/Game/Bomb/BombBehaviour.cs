@@ -6,14 +6,11 @@ using Photon.Pun;
 
 public class BombBehaviour : MonoBehaviourPun
 {
+    int BaseFirePower = 1;
     [Header("Prefabs")]
     public GameObject BombMesh;
     public GameObject Explosion;
     
-    [Header("Properties")]
-    public int Power = 3; //Distance from origin, meaning power 3 is 2 + 1 + 3 = 5 tiles
-    public bool Penetrative = false;
-   
     [Header("Timing")]
     public float Timer = 3f;
     public float RateOfBlink = 1f;
@@ -21,11 +18,17 @@ public class BombBehaviour : MonoBehaviourPun
     [Header("Debug")]
     public bool deleteAfterExplosion = true;
 
+    //For Exploding 
+    public BombState State = BombState.Blink;
     private float CountDown = 0f;
     private float BlinkingTimer = 0f;
-    private BombState m_State = BombState.Blink;
     private bool m_Exploded = false;
-    enum BombState
+
+    //Properties
+    int Power = 0;
+    bool Penetrative = false;
+
+    public enum BombState
     {
         Blink,
         Explode
@@ -34,6 +37,7 @@ public class BombBehaviour : MonoBehaviourPun
     // Start is called before the first frame update
     void Start()
     {
+        transform.parent = GameObject.Find("BombContainer").transform;
     }
 
     // Update is called once per frame
@@ -42,7 +46,7 @@ public class BombBehaviour : MonoBehaviourPun
         CountDown += Time.deltaTime;
         Blink(RateOfBlink, Color.black, Color.red);
 
-        switch (m_State)
+        switch (State)
         {
             case BombState.Blink:
                 {
@@ -51,7 +55,7 @@ public class BombBehaviour : MonoBehaviourPun
                     {
                         BombMesh.SetActive(false);
                         CountDown = 0;
-                        m_State = BombState.Explode;
+                        State = BombState.Explode;
                     }
                     break;
                 }
@@ -64,14 +68,18 @@ public class BombBehaviour : MonoBehaviourPun
                         if(deleteAfterExplosion)
                         {
                             if(photonView.IsMine)
+                            {
                                 PhotonNetwork.Destroy(photonView);
+                            }
                         }
                     }
                     if (!m_Exploded)
                     {
                         m_Exploded = true;
                         if(photonView.IsMine)
-                            photonView.RPC("CreateExplosion", RpcTarget.All, photonView.ViewID, Power);
+                        {
+                            photonView.RPC("CreateExplosion", RpcTarget.All, photonView.ViewID);
+                        }
                     }
                     break;
                 }
@@ -91,10 +99,21 @@ public class BombBehaviour : MonoBehaviourPun
             BlinkingTimer = 0;
         }
     }
-
     [PunRPC]
-    void CreateExplosion(int viewID, int Power = 1)
+    void CreateExplosion(int viewID)
     {
+        CharacterController[] arr = FindObjectsOfType<CharacterController>();
+
+        foreach (CharacterController character in arr)
+        {
+            if (character.photonView.Owner == PhotonView.Find(viewID).Owner)
+            {
+                character.GetComponent<PlayerInstantiation>().CurrentBombUsed--;
+                Power = BaseFirePower + character.GetComponent<PlayerInstantiation>().PowerIncrease;
+                Penetrative = character.GetComponent<PlayerInstantiation>().Penetrative;
+            }
+        }
+
         if (!photonView.IsMine)
             return;
 
@@ -111,7 +130,7 @@ public class BombBehaviour : MonoBehaviourPun
     void InstantiateExplosion(Vector3 direction, int viewId)
     {
         bool bStop = false;
-        for (int i = 1; i < Power; i++)
+        for (int i = 1; i <= Power; i++)
         {
             if (bStop)
                 break;
@@ -134,17 +153,10 @@ public class BombBehaviour : MonoBehaviourPun
             }
         }
     }
-
     bool CanSpawn(Vector3 Origin, Vector3 Direction, float Magnitude)
     {
         //True if no collide, false if collide
         bool rayCollide = Physics.Raycast(Origin, Direction, Magnitude, LayerMask.GetMask("Indestructable"));
         return !rayCollide;
-    }
-
-    [PunRPC]
-    void AttachToContainer()
-    {
-        transform.parent = GameObject.Find("BombContainer").transform;
     }
 }

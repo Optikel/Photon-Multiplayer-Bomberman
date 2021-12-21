@@ -23,6 +23,11 @@ public class ExplosionBehaviour : MonoBehaviourPun
         if(other.CompareTag("Destructable"))
         {
             Object.Destroy(other.gameObject);
+            BlockBehaviour block;
+            if (other.TryGetComponent<BlockBehaviour>(out block))
+            {
+                block.SpawnPowerUp();
+            }
         }
 
         if (other.CompareTag("Player"))
@@ -45,8 +50,15 @@ public class ExplosionBehaviour : MonoBehaviourPun
                 PhotonNetwork.Instantiate("SpectatorView", Vector3.zero, Quaternion.identity);
         }
 
+        Debug.Log(other.gameObject);
         if (other.CompareTag("Bombs"))
         {
+            BombBehaviour bomb;
+            if (other.TryGetComponent<BombBehaviour>(out bomb))
+            {
+                Debug.Log("Chain");
+                bomb.State = BombBehaviour.BombState.Explode;
+            }
         }
     }
 

@@ -49,6 +49,11 @@ MonoBehaviour:
   - OnCountDownEndRPC
   - EndGame
   - StartGame
+  - CreateMap
+  - SendToContainer
+  - SetFirePower
+  - SetSpeed
+  - SetBombCount
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

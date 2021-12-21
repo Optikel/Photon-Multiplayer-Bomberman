@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6050499673164330401}
   m_Layer: 0
   m_Name: BombObject
-  m_TagString: Untagged
+  m_TagString: Bombs
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -48,11 +48,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BombMesh: {fileID: 6735476979671362931}
   Explosion: {fileID: 7566469314183788761, guid: 522da013f5545144fbb0746d87eaf2d6, type: 3}
-  Power: 3
-  Penetrative: 0
   Timer: 3
   RateOfBlink: 1
   deleteAfterExplosion: 1
+  State: 0
 --- !u!114 &2186384193267837128
 MonoBehaviour:
   m_ObjectHideFlags: 0
