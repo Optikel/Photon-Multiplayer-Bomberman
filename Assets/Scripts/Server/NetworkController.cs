@@ -170,6 +170,8 @@ public class NetworkController : MonoBehaviourPunCallbacks
 
     public void OnCreateRoomButtonClicked()
     {
+        PhotonNetwork.NickName = PlayerNickname.text.Length > 0 ? PlayerNickname.text : PlayerPlaceHolder.text;
+
         string roomName = RoomNameInput.text.Length > 0 ? RoomNameInput.text : "Room " + Random.Range(0, 10000);
 
         RoomOptions options = new RoomOptions();

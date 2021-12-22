@@ -97,13 +97,19 @@ public class BombBehaviour : MonoBehaviourPun
     private void FixedUpdate()
     {
         Ray ray = new Ray(transform.position, Velocity.normalized);
-        if(Physics.Raycast(ray, 0.6f, LayerMask.GetMask("Destructable")))
+        if (Physics.Raycast(ray, 0.6f, LayerMask.GetMask("Destructable") | LayerMask.GetMask("Indestructable") | LayerMask.GetMask("Player") | LayerMask.GetMask("Bomb")))
         {
+            transform.position = RoundVector3(transform.position);
             Velocity = Vector3.zero;
         }
-
         transform.position += Velocity * Time.fixedDeltaTime;
     }
+
+    Vector3 RoundVector3 (Vector3 target)
+    {
+        return new Vector3(Mathf.RoundToInt(target.x), Mathf.RoundToInt(target.y), Mathf.RoundToInt(target.z));
+    }
+
     void Blink(float intervals, Color originalColor, Color blinkColor)
     {
         BlinkingTimer += Time.deltaTime;

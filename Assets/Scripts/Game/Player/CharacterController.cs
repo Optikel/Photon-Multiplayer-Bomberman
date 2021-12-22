@@ -46,21 +46,28 @@ public class CharacterController : MonoBehaviourPun
 		if (!photonView.IsMine)
 			return;
 
+		if (Input.GetKeyDown(KeyCode.Space))
+		{
+			if (GetComponent<PlayerInstantiation>().CanBomb())
+				photonView.RPC("SpawnBomb", RpcTarget.AllBuffered);
+		}
+
 		if (moving)
 		{
 			if (Vector3.Distance(startPosition, transform.position) > 1f)
 			{
 				transform.position = targetPosition;
 				moving = false;
+				ProcessMovement();
 				return;
 			}
 
-			transform.position += (targetPosition - startPosition) * (BaseSpeed + GetComponent<PlayerInstantiation>().SpeedMultiplier * SpeedMultiplierValue) * Time.deltaTime;
+			transform.position += (targetPosition - startPosition).normalized * (BaseSpeed + GetComponent<PlayerInstantiation>().SpeedMultiplier * SpeedMultiplierValue) * Time.deltaTime;
 			return;
 		}
 
 		DrawDebugLine();
-		ProcessKeyboard();
+		ProcessMovement();
 	}
 	bool CanMove(Vector3 direction)
 	{
@@ -103,7 +110,7 @@ public class CharacterController : MonoBehaviourPun
 		transform.rotation = Quaternion.Euler(0, targetAngle, 0);
 	}
 
-	void ProcessKeyboard()
+	void ProcessMovement()
     {
 		object start;
 		PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(GameManager.ROOM_GAME_START, out start);
@@ -155,12 +162,7 @@ public class CharacterController : MonoBehaviourPun
 			TurnDirection(Vector3.right);
 		}
 		
-		if (Input.GetKeyDown(KeyCode.Space))
-		{
-			if(GetComponent<PlayerInstantiation>().CanBomb())
-				photonView.RPC("SpawnBomb", RpcTarget.AllBuffered);
-		}
-
+		
 		if(Input.GetKeyDown(KeyCode.LeftShift))
         {
 			if(GetComponent<PlayerInstantiation>().CanPunch)
@@ -201,10 +203,7 @@ public class CharacterController : MonoBehaviourPun
 		if (!photonView.IsMine)
 			return;
 
-		float heightCompensation = GetComponent<BoxCollider>().size.y * 0.5f - BombObj.GetComponentInChildren<BoxCollider>().size.y * 0.5f;
-		Vector3 v3_heightOffset = new Vector3(0, heightCompensation, 0);
-
-		Vector3 position = targetPosition - v3_heightOffset;
+		Vector3 position = RoundVector3(transform.position);
 		bool available = true;
 		foreach (Transform otherObj in BombContainer.GetComponentInChildren<Transform>())
 		{
@@ -218,5 +217,10 @@ public class CharacterController : MonoBehaviourPun
 		{
 			GameObject bomb = PhotonNetwork.Instantiate(GetComponent<PlayerInstantiation>().Penetrative ? SpikeBomb.name : BombObj.name, position, Quaternion.identity);
 		}
+	}
+
+	Vector3 RoundVector3(Vector3 target)
+	{
+		return new Vector3(Mathf.RoundToInt(target.x), Mathf.RoundToInt(target.y), Mathf.RoundToInt(target.z));
 	}
 }
