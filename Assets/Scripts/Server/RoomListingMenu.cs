@@ -17,25 +17,29 @@ public class RoomListingMenu : MonoBehaviourPunCallbacks
     {
         foreach (RoomInfo info in roomList)
         {
-            if (_listings.Count > 0)
+            int index = _listings.FindIndex(x => x.RoomInfo.Name == info.Name);
+            Debug.Log("Index = " + index);
+            Debug.Log("Count = " + _listings.Count);
+            if (index >= 0)
             {
-                Debug.Log(_listings.Count);
-                int index = _listings.FindIndex(x => x.RoomInfo.Name == info.Name);
-                RoomListing listing = _listings[index];
-                if (info.RemovedFromList)
+                if (_listings[index] != null)
                 {
-                    if (index != -1)
+                    RoomListing listing = _listings[index];
+                    if (info.RemovedFromList)
                     {
-                        Destroy(listing.gameObject);
-                        _listings.RemoveAt(index);
+                        if (index != -1)
+                        {
+                            Destroy(listing.gameObject);
+                            _listings.RemoveAt(index);
+                        }
+                    }
+                    else
+                    {
+                        listing.SetRoomInfo(info);
                     }
                 }
-                else
-                {
-                    listing.SetRoomInfo(info);
-                }
             }
-            else 
+            else
             {
                 RoomListing newlisting = Instantiate(_roomListing, _content);
                 if (newlisting != null)

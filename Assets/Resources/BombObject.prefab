@@ -50,13 +50,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BombMesh: {fileID: 6735476979671362931}
   Explosion: {fileID: 7566469314183788761, guid: 522da013f5545144fbb0746d87eaf2d6, type: 3}
-  NormalMaterial: {fileID: 2100000, guid: 356fb4a67125d034aa8ab34e49025c5e, type: 2}
-  PenetrativeMaterial: {fileID: 2100000, guid: c5571552e0e0bc94e95377a84faf8200, type: 2}
   PrimingTime: 3
   LingerTime: 0.5
-  RateOfBlink: 1
+  RateOfBlink: 0.5
   Velocity: {x: 0, y: 0, z: 0}
   deleteAfterExplosion: 1
+  Penetrative: 0
 --- !u!114 &2186384193267837128
 MonoBehaviour:
   m_ObjectHideFlags: 0

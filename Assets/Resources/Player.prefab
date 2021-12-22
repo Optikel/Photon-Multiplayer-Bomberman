@@ -91,8 +91,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2fbf060645f56149846aed92dfb672d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BaseSpeed: 2
-  SpeedMultiplierValue: 0.5
+  BaseSpeed: 2.5
+  SpeedMultiplierValue: 1
   rayLength: 1.4
   rayOffsetX: 0.25
   rayOffsetY: 0

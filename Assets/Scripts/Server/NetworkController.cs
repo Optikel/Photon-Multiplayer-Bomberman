@@ -70,6 +70,7 @@ public class NetworkController : MonoBehaviourPunCallbacks
     public override void OnDisconnected(DisconnectCause cause)
     {
         Debug.Log("Disconnected from Server - " + cause);
+        PhotonNetwork.Reconnect();
     }
 
     public override void OnJoinedLobby()
@@ -175,7 +176,8 @@ public class NetworkController : MonoBehaviourPunCallbacks
         options.MaxPlayers = 4;
         options.IsVisible = true;
         options.DeleteNullProperties = true;
-        PhotonNetwork.CreateRoom(roomName, options, TypedLobby.Default);
+        if(PhotonNetwork.IsConnectedAndReady)
+            PhotonNetwork.CreateRoom(roomName, options, TypedLobby.Default);
     }
 
     public void OnLeaveRoomButtonClicked()

@@ -20,7 +20,8 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
     public void CreateList()
     {
         int index = 1;
-        foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values.Reverse())
+
+        foreach (Player player in PhotonNetwork.PlayerList)
         {
             PlayerListing listing = Instantiate(_playerListing, _list);
             if (listing != null)

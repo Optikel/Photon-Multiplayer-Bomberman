@@ -50,7 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PowerUpList:
   - Prefab: {fileID: 0}
-    WeightedChance: 30
+    WeightedChance: 20
   - Prefab: {fileID: 867532827431153071, guid: a520835d76a889847853e176a74458ab, type: 3}
     WeightedChance: 20
   - Prefab: {fileID: 1015678131034642583, guid: bca8ae6c103174a4a913ce0c17d60676, type: 3}
